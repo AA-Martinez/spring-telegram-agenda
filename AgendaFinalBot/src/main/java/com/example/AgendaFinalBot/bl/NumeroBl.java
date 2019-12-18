@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
@@ -36,5 +37,13 @@ public class NumeroBl {
         numero.setTxuser("admin");
         numeroRepository.save(numero);
         return numero;
+    }
+
+    public List<Numero> findAllByIdContacto (Contacto contacto){
+        List<Numero> numeroList = numeroRepository.findAllByIdContacto(contacto);
+        if (numeroList != null){
+            return numeroList;
+        }
+        return null;
     }
 }

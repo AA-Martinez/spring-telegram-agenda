@@ -4,18 +4,23 @@ import com.example.AgendaFinalBot.dao.ContactoRepository;
 import com.example.AgendaFinalBot.domain.Contacto;
 import com.example.AgendaFinalBot.domain.Usuario;
 import com.example.AgendaFinalBot.dto.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
 public class ContactoBl {
 
     ContactoRepository contactoRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContactoBl.class);
+
 
     @Autowired
     public ContactoBl(ContactoRepository contactoRepository) {
@@ -28,22 +33,28 @@ public class ContactoBl {
     }
 
     public Contacto crearContacto(User user){
-        Contacto contacto = contactoRepository.findContactoByChatId(String.valueOf(user.getId()));
-        if(contacto == null){
-            Contacto nuevoContacto = new Contacto();
-            nuevoContacto.setChatId(String.valueOf(user.getId()));
-            nuevoContacto.setNombres("temporal");
-            nuevoContacto.setApellidos("temporal");
-            nuevoContacto.setFechaNacimiento("temporal");
-            nuevoContacto.setCorreo("temporal");
-            nuevoContacto.setTxdate(new Date());
-            nuevoContacto.setTxhost("localhost");
-            nuevoContacto.setTxuser("admin");
-            nuevoContacto.setStatus(Status.ACTIVE.getStatus());
-            contactoRepository.save(nuevoContacto);
+        Contacto nuevoContacto = new Contacto();
+        nuevoContacto.setChatId(String.valueOf(user.getId()));
+        nuevoContacto.setNombres("temporal");
+        nuevoContacto.setApellidos("temporal");
+        nuevoContacto.setFechaNacimiento("temporal");
+        nuevoContacto.setCorreo("temporal");
+        nuevoContacto.setTxdate(new Date());
+        nuevoContacto.setTxhost("localhost");
+        nuevoContacto.setTxuser("admin");
+        nuevoContacto.setStatus(Status.ACTIVE.getStatus());
+        contactoRepository.save(nuevoContacto);
+        return nuevoContacto;
+    }
 
-            return nuevoContacto;
+    public List<Contacto> findAllByChatId(String chat){
+        List<Contacto> contactoList = contactoRepository.findAllByChatId(chat);
+        if(!contactoList.isEmpty()){
+            return contactoList;
+        }else{
+            LOGGER.info("Sin contactos");
         }
         return null;
     }
+
 }
