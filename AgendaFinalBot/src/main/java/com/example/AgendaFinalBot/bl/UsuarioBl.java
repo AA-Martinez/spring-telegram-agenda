@@ -197,7 +197,9 @@ public class UsuarioBl {
                         List<List<InlineKeyboardButton>> rowsInlineNombres = new ArrayList<>();
                         List<InlineKeyboardButton> rowInlineNombres = new ArrayList<>();
                         for (Contacto contacto : contactoList){
-                            rowInlineNombres.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                            if (contacto.getStatus()==1){
+                                rowInlineNombres.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                            }
                         }
                         rowsInlineNombres.add(rowInlineNombres);
                         markupInlineNombres.setKeyboard(rowsInlineNombres);
@@ -212,7 +214,9 @@ public class UsuarioBl {
                         List<List<InlineKeyboardButton>> rowsInlineApellidos = new ArrayList<>();
                         List<InlineKeyboardButton> rowInlineApellidos = new ArrayList<>();
                         for (Contacto contacto : contactoList1){
-                            rowInlineApellidos.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                            if (contacto.getStatus()==1){
+                                rowInlineApellidos.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                            }
                         }
                         rowsInlineApellidos.add(rowInlineApellidos);
                         markupInlineApellidos.setKeyboard(rowsInlineApellidos);
@@ -234,7 +238,7 @@ public class UsuarioBl {
                         for (Numero numero : numeroList){
                             System.out.println(numero.getTelefono());
                             System.out.println(numero.getIdContacto().getChatId());
-                            if (numero.getIdContacto().getChatId().equals(String.valueOf(update.getMessage().getFrom().getId()))){
+                            if (numero.getIdContacto().getChatId().equals(String.valueOf(update.getMessage().getFrom().getId())) && numero.getIdContacto().getStatus() == 1){
                                 rowInlineNumeros.add(new InlineKeyboardButton().setText(numero.getTelefono().toString()+" "+numero.getIdContacto().getNombres()+" "+numero.getIdContacto().getApellidos()).setCallbackData(";contactoSeleccionado;"+numero.getIdContacto().getIdContacto()));
 
                             }
@@ -244,6 +248,41 @@ public class UsuarioBl {
                         markupInlineNumeros.setKeyboard(rowsInlineNumeros);
                         chatResponse.setReplyMarkup(markupInlineNumeros);
 
+                        break;
+                    case "Ingrese nuevos nombres: ":
+                        Contacto contacto = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        contacto.setNombres(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Nombre modificado exitosamente");
+                        break;
+                    case "Ingrese nuevos apellidos: ":
+                        Contacto contactoNuevoApellido = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        contactoNuevoApellido.setApellidos(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Apellido modificado exitosamente");
+                        break;
+                    case "Ingrese nuevo correo: ":
+                        Contacto contactoNuevoCorreo = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        contactoNuevoCorreo.setCorreo(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Correo modificado exitosamente");
+                        break;
+                    case "Ingrese nuevo fecha de nacimiento: ":
+                        Contacto contactoNuevoFecha = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        contactoNuevoFecha.setFechaNacimiento(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Fecha de nacimiento modificada exitosamente");
+                        break;
+                    case "Ingrese nuevo numero: ":
+                        Numero numero = this.numeroBl.findNumeroByIdNumero(Integer.parseInt(conversacion[0]));
+                        numero.setTelefono(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Numero modificado exitosamente.");
                         break;
                 }
             }
@@ -294,6 +333,89 @@ public class UsuarioBl {
                             datos += "\nNumero: "+numero.getTelefono();
                         }
                         chatResponse.setText(datos);
+                        break;
+                    case "contactoSeleccionadoBorrar":
+                        Contacto contacto1 = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[2]));
+                        contacto1.setStatus(Status.INACTIVE.getStatus());
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText("Contacto eliminado.");
+                        break;
+                    case "contactoSeleccionadoModificar":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText("Que desea modificar?");
+
+                        InlineKeyboardMarkup markupInlineModificar = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInlineModificar = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineModificar = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineModificar1 = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineModificar2 = new ArrayList<>();
+
+                        rowInlineModificar.add(new InlineKeyboardButton().setText("Nombres").setCallbackData(";modificarNombre;"+conversacion[2]));
+                        rowInlineModificar.add(new InlineKeyboardButton().setText("Apellidos").setCallbackData(";modificarApellidos;"+conversacion[2]));
+                        rowInlineModificar1.add(new InlineKeyboardButton().setText("Correo").setCallbackData(";modificarCorreo;"+conversacion[2]));
+                        rowInlineModificar1.add(new InlineKeyboardButton().setText("Fecha nacimiento").setCallbackData(";modificarFechaNacimiento;"+conversacion[2]));
+                        rowInlineModificar2.add(new InlineKeyboardButton().setText("Numero(s)").setCallbackData(";modificarNumero;"+conversacion[2]));
+
+                        rowsInlineModificar.add(rowInlineModificar);
+                        rowsInlineModificar.add(rowInlineModificar1);
+                        rowsInlineModificar.add(rowInlineModificar2);
+
+                        markupInlineModificar.setKeyboard(rowsInlineModificar);
+                        chatResponse.setReplyMarkup(markupInlineModificar);
+                        break;
+                    case "modificarNombre":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese nuevos nombres: ");
+                        break;
+                    case "modificarApellidos":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese nuevos apellidos: ");
+                        break;
+                    case "modificarCorreo":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese nuevo correo: ");
+                        break;
+                    case "modificarFechaNacimiento":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese nuevo fecha de nacimiento: ");
+                        break;
+                    case "modificarNumero":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText("Seleccione el numero a modificar: ");
+                        Contacto contacto2 = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[2]));
+                        List<Numero> numeroList1 = this.numeroBl.findAllByIdContacto(contacto2);
+
+                        InlineKeyboardMarkup markupInlineModificarNumeros = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInlineModificarNumeros = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineModificarNumeros = new ArrayList<>();
+                        for(Numero numero : numeroList1){
+                            rowInlineModificarNumeros.add(new InlineKeyboardButton().setText(numero.getTelefono()).setCallbackData(";modificarNumeroPro;"+numero.getIdNumero()));
+                        }
+                        rowsInlineModificarNumeros.add(rowInlineModificarNumeros);
+
+                        markupInlineModificarNumeros.setKeyboard(rowsInlineModificarNumeros);
+                        chatResponse.setReplyMarkup(markupInlineModificarNumeros);
+                        break;
+                    case "modificarNumeroPro":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese nuevo numero: ");
+                        break;
 
                 }
             }
@@ -317,15 +439,16 @@ public class UsuarioBl {
                         List<List<InlineKeyboardButton>> rowsInlineLista = new ArrayList<>();
                         List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
                         for (Contacto contacto : contactoList){
-                            rowInlineLista.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                            if (contacto.getStatus()==1){
+                                rowInlineLista.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
 
+                            }
                         }
                         rowsInlineLista.add(rowInlineLista);
 
                         markupInlineLista.setKeyboard(rowsInlineLista);
                         chatResponse.setReplyMarkup(markupInlineLista);
                     }
-
                     break;
                 case "buscar":
                     chatResponse = new EditMessageText()
@@ -361,6 +484,54 @@ public class UsuarioBl {
                             .setChatId(update.getCallbackQuery().getMessage().getChatId())
                             .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
                             .setText("-Ingrese numero telefonico del contacto a buscar: ");
+                    break;
+                case "borrar":
+                    List<Contacto> contactoList1 = contactoBl.findAllByChatId(String.valueOf(update.getCallbackQuery().getFrom().getId()));
+                    chatResponse = new EditMessageText()
+                            .setChatId(update.getCallbackQuery().getMessage().getChatId())
+                            .setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+                    if(contactoList1 == null){
+                        chatResponse.setText("No cuenta con contactos.");
+                    }else{
+                        chatResponse.setText("Contactos: ");
+                        InlineKeyboardMarkup markupInlineLista = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInlineLista = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
+                        for (Contacto contacto : contactoList1){
+                            if (contacto.getStatus()==1){
+                                rowInlineLista.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionadoBorrar;"+contacto.getIdContacto()));
+
+                            }
+                        }
+                        rowsInlineLista.add(rowInlineLista);
+
+                        markupInlineLista.setKeyboard(rowsInlineLista);
+                        chatResponse.setReplyMarkup(markupInlineLista);
+                    }
+                    break;
+                case "modificar":
+                    List<Contacto> contactoList2 = contactoBl.findAllByChatId(String.valueOf(update.getCallbackQuery().getFrom().getId()));
+                    chatResponse = new EditMessageText()
+                            .setChatId(update.getCallbackQuery().getMessage().getChatId())
+                            .setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+                    if(contactoList2 == null){
+                        chatResponse.setText("No cuenta con contactos.");
+                    }else{
+                        chatResponse.setText("Contactos: ");
+                        InlineKeyboardMarkup markupInlineLista = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInlineLista = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
+                        for (Contacto contacto : contactoList2){
+                            if (contacto.getStatus()==1){
+                                rowInlineLista.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionadoModificar;"+contacto.getIdContacto()));
+
+                            }
+                        }
+                        rowsInlineLista.add(rowInlineLista);
+
+                        markupInlineLista.setKeyboard(rowsInlineLista);
+                        chatResponse.setReplyMarkup(markupInlineLista);
+                    }
                     break;
             }
         }

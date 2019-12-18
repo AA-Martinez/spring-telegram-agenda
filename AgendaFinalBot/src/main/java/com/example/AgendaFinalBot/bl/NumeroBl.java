@@ -55,12 +55,8 @@ public class NumeroBl {
         return null;
     }
 
-    public boolean verificarNumero(int idnumero, int idcontacto, String chatid){
-        Numero numero = numeroRepository.findNumeroByIdContactoAndIdNumero(idcontacto,idnumero);
-        Contacto contacto = contactoRepository.findContactoByIdContactoAndChatId(numero.getIdContacto().getIdContacto(), chatid);
-        if(contacto !=null){
-            return true;
-        }
-        return false;
+    public Numero findNumeroByIdNumero(int num){
+        Numero numero = numeroRepository.findNumeroByIdNumero(num);
+        return numero;
     }
 }
