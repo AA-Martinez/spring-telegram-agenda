@@ -58,15 +58,6 @@ public class ContactoBl {
         return null;
     }
 
-    public List<Contacto> findAllByNombreIsLike(String nombre){
-        List<Contacto> contactoList = contactoRepository.findAllByNombresIsLike(nombre);
-        if (contactoList != null){
-            return contactoList;
-        }else{
-            return null;
-        }
-    }
-
     public List<Contacto> findAllByChatIdAndNombresContains (String chat, String nombre){
         List<Contacto> contactoList = contactoRepository.findAllByChatIdAndNombresContains(chat,nombre);
         if (contactoList != null){

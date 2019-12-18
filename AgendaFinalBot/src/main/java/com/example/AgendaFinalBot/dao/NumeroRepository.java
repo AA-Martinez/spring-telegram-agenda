@@ -10,4 +10,7 @@ public interface NumeroRepository extends JpaRepository<Numero,Integer> {
     Numero findNumeroByIdContacto(int idContacto);
     Numero findNumeroByIdNumero(int idnumero);
     List<Numero> findAllByIdContacto(Contacto contacto);
+    List<Numero> findAllByTelefonoStartsWith(String num);
+    Numero findNumeroByIdContactoAndIdNumero(int idContacto, int idnumero);
+
 }

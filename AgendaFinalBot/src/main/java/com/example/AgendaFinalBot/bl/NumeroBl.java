@@ -46,4 +46,21 @@ public class NumeroBl {
         }
         return null;
     }
+
+    public List<Numero> findAllByTelefonoStartsWith(String num){
+        List<Numero> numeroList = numeroRepository.findAllByTelefonoStartsWith(num);
+        if(numeroList!=null){
+            return numeroList;
+        }
+        return null;
+    }
+
+    public boolean verificarNumero(int idnumero, int idcontacto, String chatid){
+        Numero numero = numeroRepository.findNumeroByIdContactoAndIdNumero(idcontacto,idnumero);
+        Contacto contacto = contactoRepository.findContactoByIdContactoAndChatId(numero.getIdContacto().getIdContacto(), chatid);
+        if(contacto !=null){
+            return true;
+        }
+        return false;
+    }
 }
