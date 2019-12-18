@@ -20,7 +20,7 @@ public class ContactoDto {
         this.nombres = contacto.getNombres();
         this.apellidos = contacto.getApellidos();
         this.correo = contacto.getCorreo();
-        this.fecha_nacimiento = contacto.getFechaNacimiento().toString();
+        this.fecha_nacimiento = contacto.getFechaNacimiento();
         this.status = contacto.getStatus();
     }
 

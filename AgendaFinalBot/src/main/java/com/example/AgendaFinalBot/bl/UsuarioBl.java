@@ -1,10 +1,14 @@
 package com.example.AgendaFinalBot.bl;
 
+import com.example.AgendaFinalBot.dao.ContactoRepository;
 import com.example.AgendaFinalBot.dao.UsuarioRepository;
+import com.example.AgendaFinalBot.domain.Contacto;
+import com.example.AgendaFinalBot.domain.Numero;
 import com.example.AgendaFinalBot.domain.Usuario;
 import com.example.AgendaFinalBot.dto.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -23,10 +27,15 @@ import java.util.List;
 public class UsuarioBl {
 
     UsuarioRepository usuarioRepository;
+    ContactoBl contactoBl;
+    NumeroBl numeroBl;
     private static final Logger LOGGER = LoggerFactory.getLogger(UsuarioBl.class);
 
-    public UsuarioBl(UsuarioRepository usuarioRepository) {
+    @Autowired
+    public UsuarioBl(UsuarioRepository usuarioRepository, ContactoBl contactoBl, NumeroBl numeroBl) {
         this.usuarioRepository = usuarioRepository;
+        this.contactoBl = contactoBl;
+        this.numeroBl = numeroBl;
     }
 
     public Usuario crearUsuario(Update update){
@@ -96,7 +105,7 @@ public class UsuarioBl {
                     InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
                     List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
                     List<InlineKeyboardButton> rowInline = new ArrayList<>();
-                    rowInline.add(new InlineKeyboardButton().setText("Registrar mi numero").setCallbackData("minumero"));
+                    rowInline.add(new InlineKeyboardButton().setText("Registrar mi numero").setCallbackData(";minumero"));
 
                     rowsInline.add(rowInline);
                     markupInline.setKeyboard(rowsInline);
@@ -105,6 +114,56 @@ public class UsuarioBl {
             }
             switch (lastMessage.getLastMessageReceived()){
 
+            }
+            if (lastMessage.getLastMessageReceived().contains("-")){
+                String []conversacion = lastMessage.getLastMessageReceived().split("-");
+                switch (conversacion[1]){
+                    case "Ingrese nombres: ":
+                        Contacto contactoNombre = this.contactoBl.crearContacto(update.getMessage().getFrom());
+                        contactoNombre.setNombres(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText(contactoNombre.getIdContacto()+"-Ingrese apellidos: ");
+                        break;
+                    case "Ingrese apellidos: ":
+                        Contacto contactoApellido = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        contactoApellido.setApellidos(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText(contactoApellido.getIdContacto()+"-Ingrese fecha de nacimiento: (aaaa/mm/dd) ");
+                        break;
+                    case "Ingrese fecha de nacimiento: (aaaa/mm/dd) ":
+                        Contacto contactoFecha = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        contactoFecha.setFechaNacimiento(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText(contactoFecha.getIdContacto()+"-Ingrese correo electronico: ");
+                        break;
+                    case "Ingrese correo electronico: ":
+                        Contacto contactoCorreo = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        contactoCorreo.setCorreo(update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText(contactoCorreo.getIdContacto()+"-Ingrese numero telefonico: ");
+                        break;
+                    case "Ingrese numero telefonico: ":
+                        Contacto contactoNumero = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        Numero nuevoNumero = this.numeroBl.crearNumero(contactoNumero.getIdContacto(),update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText(contactoNumero.getIdContacto()+"Desea ingresar un nuevo numero? ");
+                        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+                        rowInline.add(new InlineKeyboardButton().setText("Si").setCallbackData(";nuevoNumero;"+conversacion[0]));
+                        rowInline.add(new InlineKeyboardButton().setText("No").setCallbackData(";noNuevoNumero"));
+
+                        rowsInline.add(rowInline);
+                        markupInline.setKeyboard(rowsInline);
+                        chatResponse.setReplyMarkup(markupInline);
+                        break;
+
+                }
             }
         }
         return chatResponse;
@@ -126,13 +185,31 @@ public class UsuarioBl {
             chatResponse.setChatId(lastMessage.getChatId()).setText("1");
         }else{
             String lastSent = update.getCallbackQuery().getData();
+            if (lastSent.contains(";")){
+                String []conversacion =lastSent.split(";");
+                switch (conversacion[1]){
+                    case "minumero":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText("-Ingrese nombres: ");
+                        break;
+                    case "nuevoNumero":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese numero telefonico: ");
+                        break;
+                    case "noNuevoNumero":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText("Contacto registrado con exito.");
+
+                }
+            }
             switch (lastSent){
-                case "minumero":
-                    chatResponse = new EditMessageText()
-                            .setChatId(lastMessage.getChatId())
-                            .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
-                            .setText("prueba");
-                    break;
+
             }
         }
         return chatResponse;

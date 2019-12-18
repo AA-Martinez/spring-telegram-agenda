@@ -66,8 +66,7 @@ public class Contacto implements Serializable {
     private String correo;
     @Basic(optional = false)
     @Column(name = "fecha_nacimiento")
-    @Temporal(TemporalType.DATE)
-    private Date fechaNacimiento;
+    private String fechaNacimiento;
     @Basic(optional = false)
     @Column(name = "txuser")
     private String txuser;
@@ -91,7 +90,7 @@ public class Contacto implements Serializable {
         this.idContacto = idContacto;
     }
 
-    public Contacto(Integer idContacto, String chatId, String nombres, String apellidos, String correo, Date fechaNacimiento, String txuser, String txhost, Date txdate, int status) {
+    public Contacto(Integer idContacto, String chatId, String nombres, String apellidos, String correo, String fechaNacimiento, String txuser, String txhost, Date txdate, int status) {
         this.idContacto = idContacto;
         this.chatId = chatId;
         this.nombres = nombres;
@@ -144,11 +143,11 @@ public class Contacto implements Serializable {
         this.correo = correo;
     }
 
-    public Date getFechaNacimiento() {
+    public String getFechaNacimiento() {
         return fechaNacimiento;
     }
 
-    public void setFechaNacimiento(Date fechaNacimiento) {
+    public void setFechaNacimiento(String fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
     }
 
