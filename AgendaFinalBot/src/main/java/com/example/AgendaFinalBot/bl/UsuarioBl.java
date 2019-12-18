@@ -188,7 +188,39 @@ public class UsuarioBl {
                         markupInline.setKeyboard(rowsInline);
                         chatResponse.setReplyMarkup(markupInline);
                         break;
+                    case "Ingrese nombre del contacto a buscar: ":
+                        List<Contacto> contactoList = this.contactoBl.findAllByChatIdAndNombresContains(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Contactos encontrados: ");
+                        InlineKeyboardMarkup markupInlineNombres = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInlineNombres = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineNombres = new ArrayList<>();
+                        for (Contacto contacto : contactoList){
+                            rowInlineNombres.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                        }
+                        rowsInlineNombres.add(rowInlineNombres);
+                        markupInlineNombres.setKeyboard(rowsInlineNombres);
+                        chatResponse.setReplyMarkup(markupInlineNombres);
+                        break;
+                    case "Ingrese apellidos del contacto a buscar: ":
+                        List<Contacto> contactoList1 = this.contactoBl.findAllByChatIdAndApellidosContains(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Contactos encontrados: ");
+                        InlineKeyboardMarkup markupInlineApellidos = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInlineApellidos = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineApellidos = new ArrayList<>();
+                        for (Contacto contacto : contactoList1){
+                            rowInlineApellidos.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                        }
+                        rowsInlineApellidos.add(rowInlineApellidos);
+                        markupInlineApellidos.setKeyboard(rowsInlineApellidos);
+                        chatResponse.setReplyMarkup(markupInlineApellidos);
+                        break;
+                    case "Ingrese numero telefonico del contacto a buscar: ":
 
+                        break;
                 }
             }
         }
@@ -270,6 +302,42 @@ public class UsuarioBl {
                         chatResponse.setReplyMarkup(markupInlineLista);
                     }
 
+                    break;
+                case "buscar":
+                    chatResponse = new EditMessageText()
+                            .setChatId(update.getCallbackQuery().getMessage().getChatId())
+                            .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                            .setText("Como desea buscar: ");
+
+                    InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+                    List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+                    List<InlineKeyboardButton> rowInline = new ArrayList<>();
+                    rowInline.add(new InlineKeyboardButton().setText("Por nombres").setCallbackData("buscarNombres"));
+                    rowInline.add(new InlineKeyboardButton().setText("Por apellidos").setCallbackData("buscarApellidos"));
+                    rowInline.add(new InlineKeyboardButton().setText("Por numero").setCallbackData("bucarNumero"));
+
+
+                    rowsInline.add(rowInline);
+                    markupInline.setKeyboard(rowsInline);
+                    chatResponse.setReplyMarkup(markupInline);
+                    break;
+                case "buscarNombres":
+                    chatResponse = new EditMessageText()
+                            .setChatId(update.getCallbackQuery().getMessage().getChatId())
+                            .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                            .setText("-Ingrese nombre del contacto a buscar: ");
+                    break;
+                case "buscarApellidos":
+                    chatResponse = new EditMessageText()
+                            .setChatId(update.getCallbackQuery().getMessage().getChatId())
+                            .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                            .setText("-Ingrese apellidos del contacto a buscar: ");
+                    break;
+                case "buscarNumero":
+                    chatResponse =  new EditMessageText()
+                            .setChatId(update.getCallbackQuery().getMessage().getChatId())
+                            .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                            .setText("-Ingrese numero telefonico del contacto a buscar: ");
                     break;
             }
         }
