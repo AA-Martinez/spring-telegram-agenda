@@ -195,17 +195,29 @@ public class UsuarioBl {
                         break;
                     case "Ingrese fecha de nacimiento: (aaaa/mm/dd) ":
                         Contacto contactoFecha = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
-                        contactoFecha.setFechaNacimiento(update.getMessage().getText());
                         chatResponse = new SendMessage()
-                                .setChatId(lastMessage.getChatId())
-                                .setText(contactoFecha.getIdContacto()+"-Ingrese correo electronico: ");
+                                .setChatId(lastMessage.getChatId());
+                        if (contactoBl.validarFecha(update.getMessage().getText())){
+                            contactoFecha.setFechaNacimiento(update.getMessage().getText());
+                                    chatResponse.setText(contactoFecha.getIdContacto()+"-Ingrese correo electronico: ");
+                        }else{
+                            chatResponse.setText(contactoFecha.getIdContacto()+"-Ingrese fecha de nacimiento: (aaaa/mm/dd) ");
+                        }
+
+
                         break;
                     case "Ingrese correo electronico: ":
                         Contacto contactoCorreo = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
-                        contactoCorreo.setCorreo(update.getMessage().getText());
                         chatResponse = new SendMessage()
-                                .setChatId(lastMessage.getChatId())
-                                .setText(contactoCorreo.getIdContacto()+"-Ingrese numero telefonico: ");
+                                .setChatId(lastMessage.getChatId());
+                        if (contactoBl.validarCorreo(update.getMessage().getText())){
+                            contactoCorreo.setCorreo(update.getMessage().getText());
+                            chatResponse.setText(contactoCorreo.getIdContacto()+"-Ingrese numero telefonico: ");
+                        }else{
+                            chatResponse.setText(contactoCorreo.getIdContacto()+"-Ingrese correo electronico: ");
+
+                        }
+
                         break;
                     case "Ingrese numero telefonico: ":
                         Contacto contactoNumero = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
@@ -301,17 +313,26 @@ public class UsuarioBl {
                         break;
                     case "Ingrese nuevo correo: ":
                         Contacto contactoNuevoCorreo = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
-                        contactoNuevoCorreo.setCorreo(update.getMessage().getText());
                         chatResponse = new SendMessage()
-                                .setChatId(lastMessage.getChatId())
-                                .setText("Correo modificado exitosamente");
+                                .setChatId(lastMessage.getChatId());
+                        if (contactoBl.validarCorreo(update.getMessage().getText())){
+                            contactoNuevoCorreo.setCorreo(update.getMessage().getText());
+                                chatResponse.setText("Correo modificado exitosamente");
+                        }else{
+                            chatResponse.setText(contactoNuevoCorreo.getIdContacto()+"-Ingrese nuevo correo: ");
+                        }
+
                         break;
                     case "Ingrese nuevo fecha de nacimiento: ":
                         Contacto contactoNuevoFecha = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
-                        contactoNuevoFecha.setFechaNacimiento(update.getMessage().getText());
                         chatResponse = new SendMessage()
-                                .setChatId(lastMessage.getChatId())
-                                .setText("Fecha de nacimiento modificada exitosamente");
+                                .setChatId(lastMessage.getChatId());
+                        if (contactoBl.validarFecha(update.getMessage().getText())){
+                            contactoNuevoFecha.setFechaNacimiento(update.getMessage().getText());
+                                chatResponse.setText("Fecha de nacimiento modificada exitosamente");
+                        }else{
+                            chatResponse.setText(contactoNuevoFecha.getIdContacto()+"-Ingrese nuevo fecha de nacimiento: ");
+                        }
                         break;
                     case "Ingrese nuevo numero: ":
                         Numero numero = this.numeroBl.findNumeroByIdNumero(Integer.parseInt(conversacion[0]));
@@ -379,6 +400,7 @@ public class UsuarioBl {
                         }
                         chatResponse.setText(datos);
                         contactoBl.mandarfoto(contacto.getChatId(),contacto.getImagen());
+
 
                         break;
                     case "contactoSeleccionadoBorrar":

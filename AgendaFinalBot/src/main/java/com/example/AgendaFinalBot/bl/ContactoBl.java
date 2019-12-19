@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -81,6 +83,25 @@ public class ContactoBl {
             return contactoList;
         }else{
             return null;
+        }
+    }
+
+    public boolean validarFecha(String fecha){
+        try{
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+            simpleDateFormat.setLenient(false);
+            simpleDateFormat.parse(fecha);
+        }catch (ParseException e){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean validarCorreo(String correo){
+        if (correo.contains("@")){
+            return true;
+        }else{
+            return false;
         }
     }
 
