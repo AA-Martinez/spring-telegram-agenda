@@ -239,36 +239,46 @@ public class UsuarioBl {
                     case "Ingrese nombre del contacto a buscar: ":
                         List<Contacto> contactoList = this.contactoBl.findAllByChatIdAndNombresContains(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText());
                         chatResponse = new SendMessage()
-                                .setChatId(lastMessage.getChatId())
-                                .setText("Contactos encontrados: ");
-                        InlineKeyboardMarkup markupInlineNombres = new InlineKeyboardMarkup();
-                        List<List<InlineKeyboardButton>> rowsInlineNombres = new ArrayList<>();
-                        List<InlineKeyboardButton> rowInlineNombres = new ArrayList<>();
-                        for (Contacto contacto : contactoList){
-                            if (contacto.getStatus()==1){
-                                rowInlineNombres.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                                .setChatId(lastMessage.getChatId());
+                        if(contactoList.isEmpty()){
+                            chatResponse.setText("No se encontraron coincidencias.");
+                        }else{
+                            chatResponse.setText("Contactos encontrados: ");
+                            InlineKeyboardMarkup markupInlineNombres = new InlineKeyboardMarkup();
+                            List<List<InlineKeyboardButton>> rowsInlineNombres = new ArrayList<>();
+                            for (Contacto contacto : contactoList){
+                                if (contacto.getStatus()==1){
+                                    List<InlineKeyboardButton> rowInlineNombres = new ArrayList<>();
+                                    rowInlineNombres.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                                    rowsInlineNombres.add(rowInlineNombres);
+                                }
                             }
+                            markupInlineNombres.setKeyboard(rowsInlineNombres);
+                            chatResponse.setReplyMarkup(markupInlineNombres);
                         }
-                        rowsInlineNombres.add(rowInlineNombres);
-                        markupInlineNombres.setKeyboard(rowsInlineNombres);
-                        chatResponse.setReplyMarkup(markupInlineNombres);
                         break;
                     case "Ingrese apellidos del contacto a buscar: ":
                         List<Contacto> contactoList1 = this.contactoBl.findAllByChatIdAndApellidosContains(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText());
                         chatResponse = new SendMessage()
-                                .setChatId(lastMessage.getChatId())
-                                .setText("Contactos encontrados: ");
-                        InlineKeyboardMarkup markupInlineApellidos = new InlineKeyboardMarkup();
-                        List<List<InlineKeyboardButton>> rowsInlineApellidos = new ArrayList<>();
-                        List<InlineKeyboardButton> rowInlineApellidos = new ArrayList<>();
-                        for (Contacto contacto : contactoList1){
-                            if (contacto.getStatus()==1){
-                                rowInlineApellidos.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                                .setChatId(lastMessage.getChatId());
+                        if(contactoList1.isEmpty()){
+                            chatResponse.setText("No se encontraron coincidencias.");
+                        }else{
+                            chatResponse.setText("Contactos encontrados: ");
+                            InlineKeyboardMarkup markupInlineApellidos = new InlineKeyboardMarkup();
+                            List<List<InlineKeyboardButton>> rowsInlineApellidos = new ArrayList<>();
+                            for (Contacto contacto : contactoList1){
+                                if (contacto.getStatus()==1){
+                                    List<InlineKeyboardButton> rowInlineApellidos = new ArrayList<>();
+                                    rowInlineApellidos.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
+                                    rowsInlineApellidos.add(rowInlineApellidos);
+
+                                }
                             }
+                            markupInlineApellidos.setKeyboard(rowsInlineApellidos);
+                            chatResponse.setReplyMarkup(markupInlineApellidos);
                         }
-                        rowsInlineApellidos.add(rowInlineApellidos);
-                        markupInlineApellidos.setKeyboard(rowsInlineApellidos);
-                        chatResponse.setReplyMarkup(markupInlineApellidos);
+
                         break;
                     case "Ingrese numero telefonico del contacto a buscar: ":
                         List<Contacto> contactoList2 = this.contactoBl.findAllByChatId(String.valueOf(update.getMessage().getFrom().getId()));
@@ -276,23 +286,22 @@ public class UsuarioBl {
                         chatResponse = new SendMessage()
                                 .setChatId(lastMessage.getChatId())
                                 .setText("Contactos encontrados: ");
-
                         System.out.println(contactoList2);
                         System.out.println(numeroList);
 
                         InlineKeyboardMarkup markupInlineNumeros = new InlineKeyboardMarkup();
                         List<List<InlineKeyboardButton>> rowsInlineNumeros = new ArrayList<>();
-                        List<InlineKeyboardButton> rowInlineNumeros = new ArrayList<>();
                         for (Numero numero : numeroList){
                             System.out.println(numero.getTelefono());
                             System.out.println(numero.getIdContacto().getChatId());
                             if (numero.getIdContacto().getChatId().equals(String.valueOf(update.getMessage().getFrom().getId())) && numero.getIdContacto().getStatus() == 1){
+                                List<InlineKeyboardButton> rowInlineNumeros = new ArrayList<>();
                                 rowInlineNumeros.add(new InlineKeyboardButton().setText(numero.getTelefono().toString()+" "+numero.getIdContacto().getNombres()+" "+numero.getIdContacto().getApellidos()).setCallbackData(";contactoSeleccionado;"+numero.getIdContacto().getIdContacto()));
+                                rowsInlineNumeros.add(rowInlineNumeros);
 
                             }
 
                         }
-                        rowsInlineNumeros.add(rowInlineNumeros);
                         markupInlineNumeros.setKeyboard(rowsInlineNumeros);
                         chatResponse.setReplyMarkup(markupInlineNumeros);
 
@@ -471,11 +480,12 @@ public class UsuarioBl {
 
                         InlineKeyboardMarkup markupInlineModificarNumeros = new InlineKeyboardMarkup();
                         List<List<InlineKeyboardButton>> rowsInlineModificarNumeros = new ArrayList<>();
-                        List<InlineKeyboardButton> rowInlineModificarNumeros = new ArrayList<>();
                         for(Numero numero : numeroList1){
+                            List<InlineKeyboardButton> rowInlineModificarNumeros = new ArrayList<>();
                             rowInlineModificarNumeros.add(new InlineKeyboardButton().setText(numero.getTelefono()).setCallbackData(";modificarNumeroPro;"+numero.getIdNumero()));
+                            rowsInlineModificarNumeros.add(rowInlineModificarNumeros);
+
                         }
-                        rowsInlineModificarNumeros.add(rowInlineModificarNumeros);
 
                         markupInlineModificarNumeros.setKeyboard(rowsInlineModificarNumeros);
                         chatResponse.setReplyMarkup(markupInlineModificarNumeros);
@@ -513,14 +523,14 @@ public class UsuarioBl {
                         chatResponse.setText("Contactos: ");
                         InlineKeyboardMarkup markupInlineLista = new InlineKeyboardMarkup();
                         List<List<InlineKeyboardButton>> rowsInlineLista = new ArrayList<>();
-                        List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
                         for (Contacto contacto : contactoList){
                             if (contacto.getStatus()==1){
+                                List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
                                 rowInlineLista.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionado;"+contacto.getIdContacto()));
-
+                                rowsInlineLista.add(rowInlineLista);
                             }
                         }
-                        rowsInlineLista.add(rowInlineLista);
+
 
                         markupInlineLista.setKeyboard(rowsInlineLista);
                         chatResponse.setReplyMarkup(markupInlineLista);
@@ -572,14 +582,14 @@ public class UsuarioBl {
                         chatResponse.setText("Contactos: ");
                         InlineKeyboardMarkup markupInlineLista = new InlineKeyboardMarkup();
                         List<List<InlineKeyboardButton>> rowsInlineLista = new ArrayList<>();
-                        List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
                         for (Contacto contacto : contactoList1){
                             if (contacto.getStatus()==1){
+                                List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
                                 rowInlineLista.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionadoBorrar;"+contacto.getIdContacto()));
+                                rowsInlineLista.add(rowInlineLista);
 
                             }
                         }
-                        rowsInlineLista.add(rowInlineLista);
 
                         markupInlineLista.setKeyboard(rowsInlineLista);
                         chatResponse.setReplyMarkup(markupInlineLista);
@@ -596,14 +606,14 @@ public class UsuarioBl {
                         chatResponse.setText("Contactos: ");
                         InlineKeyboardMarkup markupInlineLista = new InlineKeyboardMarkup();
                         List<List<InlineKeyboardButton>> rowsInlineLista = new ArrayList<>();
-                        List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
                         for (Contacto contacto : contactoList2){
                             if (contacto.getStatus()==1){
+                                List<InlineKeyboardButton> rowInlineLista = new ArrayList<>();
                                 rowInlineLista.add(new InlineKeyboardButton().setText(contacto.getNombres()+" "+contacto.getApellidos()).setCallbackData(";contactoSeleccionadoModificar;"+contacto.getIdContacto()));
+                                rowsInlineLista.add(rowInlineLista);
 
                             }
                         }
-                        rowsInlineLista.add(rowInlineLista);
 
                         markupInlineLista.setKeyboard(rowsInlineLista);
                         chatResponse.setReplyMarkup(markupInlineLista);
