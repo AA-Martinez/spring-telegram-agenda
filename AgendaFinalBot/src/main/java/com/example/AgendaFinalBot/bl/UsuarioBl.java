@@ -237,7 +237,7 @@ public class UsuarioBl {
                         break;
 
                     case "Ingrese nombre del contacto a buscar: ":
-                        List<Contacto> contactoList = this.contactoBl.findAllByChatIdAndNombresContains(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText());
+                        List<Contacto> contactoList = this.contactoBl.findAllByChatIdAndNombresContainsAndStatusIs(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText(),1);
                         chatResponse = new SendMessage()
                                 .setChatId(lastMessage.getChatId());
                         if(contactoList.isEmpty()){
@@ -258,7 +258,7 @@ public class UsuarioBl {
                         }
                         break;
                     case "Ingrese apellidos del contacto a buscar: ":
-                        List<Contacto> contactoList1 = this.contactoBl.findAllByChatIdAndApellidosContains(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText());
+                        List<Contacto> contactoList1 = this.contactoBl.findAllByChatIdAndApellidosContainsAndStatusIs(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText(),1);
                         chatResponse = new SendMessage()
                                 .setChatId(lastMessage.getChatId());
                         if(contactoList1.isEmpty()){
@@ -282,7 +282,7 @@ public class UsuarioBl {
                         break;
                     case "Ingrese numero telefonico del contacto a buscar: ":
                         List<Contacto> contactoList2 = this.contactoBl.findAllByChatId(String.valueOf(update.getMessage().getFrom().getId()));
-                        List<Numero> numeroList = this.numeroBl.findAllByTelefonoStartsWith(update.getMessage().getText());
+                        List<Numero> numeroList = this.numeroBl.findAllByTelefonoStartsWithAndStatusIs(update.getMessage().getText(),1);
                         chatResponse = new SendMessage()
                                 .setChatId(lastMessage.getChatId())
                                 .setText("Contactos encontrados: ");
@@ -296,7 +296,7 @@ public class UsuarioBl {
                             System.out.println(numero.getIdContacto().getChatId());
                             if (numero.getIdContacto().getChatId().equals(String.valueOf(update.getMessage().getFrom().getId())) && numero.getIdContacto().getStatus() == 1){
                                 List<InlineKeyboardButton> rowInlineNumeros = new ArrayList<>();
-                                rowInlineNumeros.add(new InlineKeyboardButton().setText(numero.getTelefono().toString()+" "+numero.getIdContacto().getNombres()+" "+numero.getIdContacto().getApellidos()).setCallbackData(";contactoSeleccionado;"+numero.getIdContacto().getIdContacto()));
+                                rowInlineNumeros.add(new InlineKeyboardButton().setText(numero.getIdContacto().getNombres()+" "+numero.getIdContacto().getApellidos()+" / Numero: "+numero.getTelefono().toString()).setCallbackData(";contactoSeleccionado;"+numero.getIdContacto().getIdContacto()));
                                 rowsInlineNumeros.add(rowInlineNumeros);
 
                             }
@@ -359,6 +359,18 @@ public class UsuarioBl {
                                 .setChatId(lastMessage.getChatId())
                                 .setText("Foto modificada exitosamente.");
                         break;
+                    case "Ingrese numero: ":
+                        Contacto contacto1 =  this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        List<Numero> numeroList1 = this.numeroBl.findAllByIdContacto(contacto1);
+                        chatResponse =  new SendMessage()
+                                .setChatId(lastMessage.getChatId());
+                        if(this.numeroBl.comprobarNumero(contacto1,update.getMessage().getText())){
+                            chatResponse.setText(contacto1.getIdContacto()+"-Ingrese numero: ");
+                        }else{
+                            Numero numero1 =  this.numeroBl.crearNumero(Integer.parseInt(conversacion[0]), update.getMessage().getText());
+                            chatResponse.setText("Numero agregado.");
+                        }
+                        break;
                 }
             }
         }
@@ -405,7 +417,9 @@ public class UsuarioBl {
                         datos+="Nombre: "+contacto.getNombres()+ " "+contacto.getApellidos()+"\nCorreo: "+contacto.getCorreo()+"\nFecha nacimiento: "+contacto.getFechaNacimiento();
                         List<Numero> numeroList = this.numeroBl.findAllByIdContacto(contacto);
                         for (Numero numero : numeroList){
-                            datos += "\nNumero: "+numero.getTelefono();
+                            if (numero.getStatus() == 1){
+                                datos += "\nNumero: "+numero.getTelefono();
+                            }
                         }
                         chatResponse.setText(datos);
                         contactoBl.mandarfoto(contacto.getChatId(),contacto.getImagen());
@@ -431,6 +445,8 @@ public class UsuarioBl {
                         List<InlineKeyboardButton> rowInlineModificar = new ArrayList<>();
                         List<InlineKeyboardButton> rowInlineModificar1 = new ArrayList<>();
                         List<InlineKeyboardButton> rowInlineModificar2 = new ArrayList<>();
+                        List<InlineKeyboardButton> rowInlineModificar3 = new ArrayList<>();
+
 
                         rowInlineModificar.add(new InlineKeyboardButton().setText("Nombres").setCallbackData(";modificarNombre;"+conversacion[2]));
                         rowInlineModificar.add(new InlineKeyboardButton().setText("Apellidos").setCallbackData(";modificarApellidos;"+conversacion[2]));
@@ -438,10 +454,13 @@ public class UsuarioBl {
                         rowInlineModificar1.add(new InlineKeyboardButton().setText("Fecha nacimiento").setCallbackData(";modificarFechaNacimiento;"+conversacion[2]));
                         rowInlineModificar2.add(new InlineKeyboardButton().setText("Numero(s)").setCallbackData(";modificarNumero;"+conversacion[2]));
                         rowInlineModificar2.add(new InlineKeyboardButton().setText("Foto").setCallbackData(";modificarFoto;"+conversacion[2]));
+                        rowInlineModificar3.add(new InlineKeyboardButton().setText("Agregar numero").setCallbackData(";agregarNumero;"+conversacion[2]));
+                        rowInlineModificar3.add(new InlineKeyboardButton().setText("Borrar numero").setCallbackData(";borrarNumero;"+conversacion[2]));
 
                         rowsInlineModificar.add(rowInlineModificar);
                         rowsInlineModificar.add(rowInlineModificar1);
                         rowsInlineModificar.add(rowInlineModificar2);
+                        rowsInlineModificar.add(rowInlineModificar3);
 
                         markupInlineModificar.setKeyboard(rowsInlineModificar);
                         chatResponse.setReplyMarkup(markupInlineModificar);
@@ -481,10 +500,11 @@ public class UsuarioBl {
                         InlineKeyboardMarkup markupInlineModificarNumeros = new InlineKeyboardMarkup();
                         List<List<InlineKeyboardButton>> rowsInlineModificarNumeros = new ArrayList<>();
                         for(Numero numero : numeroList1){
-                            List<InlineKeyboardButton> rowInlineModificarNumeros = new ArrayList<>();
-                            rowInlineModificarNumeros.add(new InlineKeyboardButton().setText(numero.getTelefono()).setCallbackData(";modificarNumeroPro;"+numero.getIdNumero()));
-                            rowsInlineModificarNumeros.add(rowInlineModificarNumeros);
-
+                            if (numero.getStatus() == 1){
+                                List<InlineKeyboardButton> rowInlineModificarNumeros = new ArrayList<>();
+                                rowInlineModificarNumeros.add(new InlineKeyboardButton().setText(numero.getTelefono()).setCallbackData(";modificarNumeroPro;"+numero.getIdNumero()));
+                                rowsInlineModificarNumeros.add(rowInlineModificarNumeros);
+                            }
                         }
 
                         markupInlineModificarNumeros.setKeyboard(rowsInlineModificarNumeros);
@@ -500,7 +520,40 @@ public class UsuarioBl {
                         chatResponse = new EditMessageText()
                                 .setChatId(lastMessage.getChatId())
                                 .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
-                                .setText(conversacion[2]+"-Ingrese nueva foto: -");
+                                .setText(conversacion[2]+"-Ingrese nueva foto: ");
+                        break;
+                    case "agregarNumero":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese numero: ");
+                        break;
+                    case "borrarNumero":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText("Seleccione el numero a borrar: ");
+                        Contacto contacto3 = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[2]));
+                        List<Numero> numeroList2 = this.numeroBl.findAllByIdContacto(contacto3);
+                        InlineKeyboardMarkup markupInlineBorrarNumero = new InlineKeyboardMarkup();
+                        List<List<InlineKeyboardButton>> rowsInlineBorrarNumero = new ArrayList<>();
+                        for(Numero numero : numeroList2){
+                            if (numero.getStatus() == 1){
+                                List<InlineKeyboardButton> rowInlineBorrarNumero = new ArrayList<>();
+                                rowInlineBorrarNumero.add(new InlineKeyboardButton().setText(numero.getTelefono()).setCallbackData(";borrarNumeroPro;"+numero.getIdNumero()));
+                                rowsInlineBorrarNumero.add(rowInlineBorrarNumero);
+                            }
+                        }
+                        markupInlineBorrarNumero.setKeyboard(rowsInlineBorrarNumero);
+                        chatResponse.setReplyMarkup(markupInlineBorrarNumero);
+                        break;
+                    case "borrarNumeroPro":
+                        Numero numero = this.numeroBl.findNumeroByIdNumero(Integer.parseInt(conversacion[2]));
+                        numero.setStatus(Status.INACTIVE.getStatus());
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText("Numero eliminado del contacto.");
                         break;
 
                 }

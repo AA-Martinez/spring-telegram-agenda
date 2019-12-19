@@ -10,8 +10,8 @@ public interface ContactoRepository extends JpaRepository<Contacto,Integer> {
     Contacto findContactoByChatId(String chatid);
     Contacto findContactoByIdContacto(int id);
     List<Contacto> findAllByChatId(String chatid);
-    List<Contacto> findAllByChatIdAndNombresContains(String chat, String nombre);
-    List<Contacto> findAllByChatIdAndApellidosContains(String chat, String apellido);
+    List<Contacto> findAllByChatIdAndNombresContainsAndStatusIs(String chat, String nombre, int num);
+    List<Contacto> findAllByChatIdAndApellidosContainsAndStatusIs(String chat, String apellido, int num);
     Contacto findContactoByIdContactoAndChatId(int id, String chat);
 
 

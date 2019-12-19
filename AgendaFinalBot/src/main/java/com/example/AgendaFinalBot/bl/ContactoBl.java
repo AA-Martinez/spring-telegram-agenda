@@ -68,8 +68,8 @@ public class ContactoBl {
         return null;
     }
 
-    public List<Contacto> findAllByChatIdAndNombresContains (String chat, String nombre){
-        List<Contacto> contactoList = contactoRepository.findAllByChatIdAndNombresContains(chat,nombre);
+    public List<Contacto> findAllByChatIdAndNombresContainsAndStatusIs (String chat, String nombre, int stat){
+        List<Contacto> contactoList = contactoRepository.findAllByChatIdAndNombresContainsAndStatusIs(chat,nombre,stat);
         if (contactoList != null){
             return contactoList;
         }else{
@@ -77,8 +77,8 @@ public class ContactoBl {
         }
     }
 
-    public List<Contacto> findAllByChatIdAndApellidosContains (String chat, String apellidos){
-        List<Contacto> contactoList = contactoRepository.findAllByChatIdAndApellidosContains(chat,apellidos);
+    public List<Contacto> findAllByChatIdAndApellidosContainsAndStatusIs (String chat, String apellidos, int stat){
+        List<Contacto> contactoList = contactoRepository.findAllByChatIdAndApellidosContainsAndStatusIs(chat,apellidos,stat);
         if (contactoList != null){
             return contactoList;
         }else{

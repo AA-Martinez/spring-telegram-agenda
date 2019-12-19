@@ -47,8 +47,8 @@ public class NumeroBl {
         return null;
     }
 
-    public List<Numero> findAllByTelefonoStartsWith(String num){
-        List<Numero> numeroList = numeroRepository.findAllByTelefonoStartsWith(num);
+    public List<Numero> findAllByTelefonoStartsWithAndStatusIs(String num, int stat){
+        List<Numero> numeroList = numeroRepository.findAllByTelefonoStartsWithAndStatusIs(num,stat);
         if(numeroList!=null){
             return numeroList;
         }
@@ -58,5 +58,17 @@ public class NumeroBl {
     public Numero findNumeroByIdNumero(int num){
         Numero numero = numeroRepository.findNumeroByIdNumero(num);
         return numero;
+    }
+
+    public boolean comprobarNumero(Contacto contacto, String num){
+        List<Numero> numeroList = numeroRepository.findAllByIdContacto(contacto);
+        boolean existe = false;
+        for (Numero numero : numeroList){
+            if (numero.getTelefono().equals(num) && numero.getStatus() == 1){
+                existe = true;
+            }
+        }
+        return existe;
+
     }
 }
