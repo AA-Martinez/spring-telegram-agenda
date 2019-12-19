@@ -1,5 +1,6 @@
 package com.example.AgendaFinalBot.bl;
 
+import com.example.AgendaFinalBot.app.AgendaFinalBot;
 import com.example.AgendaFinalBot.dao.ContactoRepository;
 import com.example.AgendaFinalBot.domain.Contacto;
 import com.example.AgendaFinalBot.domain.Usuario;
@@ -40,12 +41,19 @@ public class ContactoBl {
         nuevoContacto.setApellidos("temporal");
         nuevoContacto.setFechaNacimiento("temporal");
         nuevoContacto.setCorreo("temporal");
+        nuevoContacto.setImagen("temporal");
         nuevoContacto.setTxdate(new Date());
         nuevoContacto.setTxhost("localhost");
         nuevoContacto.setTxuser("admin");
         nuevoContacto.setStatus(Status.ACTIVE.getStatus());
         contactoRepository.save(nuevoContacto);
+
         return nuevoContacto;
+    }
+
+    public void mandarfoto(String chatid, String idimagen){
+        AgendaFinalBot agendaFinalBot = new AgendaFinalBot();
+        agendaFinalBot.mandarfoto(chatid,idimagen);
     }
 
     public List<Contacto> findAllByChatId(String chat){

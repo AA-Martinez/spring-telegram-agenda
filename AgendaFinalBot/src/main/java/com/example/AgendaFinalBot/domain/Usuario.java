@@ -18,6 +18,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -46,25 +48,37 @@ public class Usuario implements Serializable {
     @Column(name = "id_usuario")
     private Integer idUsuario;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "chat_id")
     private String chatId;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 255)
     @Column(name = "last_message_sent")
     private String lastMessageSent;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 255)
     @Column(name = "last_message_received")
     private String lastMessageReceived;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "txuser")
     private String txuser;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "txhost")
     private String txhost;
     @Basic(optional = false)
+    @NotNull
     @Column(name = "txdate")
     @Temporal(TemporalType.DATE)
     private Date txdate;
     @Basic(optional = false)
+    @NotNull
     @Column(name = "status")
     private int status;
 

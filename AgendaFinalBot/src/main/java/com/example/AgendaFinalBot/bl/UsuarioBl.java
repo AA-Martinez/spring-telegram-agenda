@@ -6,21 +6,22 @@ import com.example.AgendaFinalBot.domain.Contacto;
 import com.example.AgendaFinalBot.domain.Numero;
 import com.example.AgendaFinalBot.domain.Usuario;
 import com.example.AgendaFinalBot.dto.Status;
+import org.checkerframework.checker.units.qual.C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
@@ -79,6 +80,17 @@ public class UsuarioBl {
         usuario.setLastMessageSent(messageSent);
     }
 
+    public void setlastPhotoReceived(Update update, String messageReceived){
+        User user = update.getMessage().getFrom();
+        Usuario usuario = usuarioRepository.findUsuarioByChatId(String.valueOf(user.getId()));
+        usuario.setLastMessageReceived(messageReceived);
+    }
+
+    public void setlastPhotoSent(Update update, String messageSent){
+        User user = update.getMessage().getFrom();
+        Usuario usuario = usuarioRepository.findUsuarioByChatId(String.valueOf(user.getId()));
+        usuario.setLastMessageSent(messageSent);
+    }
 
     public SendMessage processUpdate(Update update){
         LOGGER.info("update {} ", update);
@@ -88,6 +100,19 @@ public class UsuarioBl {
         setlastMessageReceived(update, conversacion.getText());
         return conversacion;
     }
+
+    public SendMessage processImage(Update update){
+        LOGGER.info("update {} ", update);
+        Usuario usuario = crearUsuario(update);
+        List<PhotoSize> photos = update.getMessage().getPhoto();
+        PhotoSize photo = photos.get(photos.size() - 1);
+        setlastMessageSent(update,photo.getFileId());
+        SendMessage conversacion = continueChatWithUser(update, usuario);
+        setlastMessageReceived(update, conversacion.getText());
+        return conversacion;
+
+    }
+
 
     private SendMessage continueChatWithUser(Update update,Usuario lastMessage) {
 
@@ -156,7 +181,17 @@ public class UsuarioBl {
                         contactoApellido.setApellidos(update.getMessage().getText());
                         chatResponse = new SendMessage()
                                 .setChatId(lastMessage.getChatId())
-                                .setText(contactoApellido.getIdContacto()+"-Ingrese fecha de nacimiento: (aaaa/mm/dd) ");
+                                .setText(contactoApellido.getIdContacto()+"-Ingrese foto: ");
+                        break;
+                    case "Ingrese foto: ":
+                        Contacto contactoFoto = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        List<PhotoSize> photos = update.getMessage().getPhoto();
+                        PhotoSize photo = photos.get(photos.size() - 1);
+                        contactoFoto.setImagen(photo.getFileId());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText(contactoFoto.getIdContacto()+"-Ingrese fecha de nacimiento: (aaaa/mm/dd) ");
+
                         break;
                     case "Ingrese fecha de nacimiento: (aaaa/mm/dd) ":
                         Contacto contactoFecha = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
@@ -188,6 +223,7 @@ public class UsuarioBl {
                         markupInline.setKeyboard(rowsInline);
                         chatResponse.setReplyMarkup(markupInline);
                         break;
+
                     case "Ingrese nombre del contacto a buscar: ":
                         List<Contacto> contactoList = this.contactoBl.findAllByChatIdAndNombresContains(String.valueOf(update.getMessage().getFrom().getId()),update.getMessage().getText());
                         chatResponse = new SendMessage()
@@ -284,6 +320,15 @@ public class UsuarioBl {
                                 .setChatId(lastMessage.getChatId())
                                 .setText("Numero modificado exitosamente.");
                         break;
+                    case "Ingrese nueva foto: ":
+                        Contacto contactoNuevaFoto = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[0]));
+                        List<PhotoSize> photos1 = update.getMessage().getPhoto();
+                        PhotoSize photo1 = photos1.get(photos1.size() - 1);
+                        contactoNuevaFoto.setImagen(photo1.getFileId());
+                        chatResponse = new SendMessage()
+                                .setChatId(lastMessage.getChatId())
+                                .setText("Foto modificada exitosamente.");
+                        break;
                 }
             }
         }
@@ -333,6 +378,8 @@ public class UsuarioBl {
                             datos += "\nNumero: "+numero.getTelefono();
                         }
                         chatResponse.setText(datos);
+                        contactoBl.mandarfoto(contacto.getChatId(),contacto.getImagen());
+
                         break;
                     case "contactoSeleccionadoBorrar":
                         Contacto contacto1 = this.contactoBl.findContactobyIdContacto(Integer.parseInt(conversacion[2]));
@@ -359,6 +406,7 @@ public class UsuarioBl {
                         rowInlineModificar1.add(new InlineKeyboardButton().setText("Correo").setCallbackData(";modificarCorreo;"+conversacion[2]));
                         rowInlineModificar1.add(new InlineKeyboardButton().setText("Fecha nacimiento").setCallbackData(";modificarFechaNacimiento;"+conversacion[2]));
                         rowInlineModificar2.add(new InlineKeyboardButton().setText("Numero(s)").setCallbackData(";modificarNumero;"+conversacion[2]));
+                        rowInlineModificar2.add(new InlineKeyboardButton().setText("Foto").setCallbackData(";modificarFoto;"+conversacion[2]));
 
                         rowsInlineModificar.add(rowInlineModificar);
                         rowsInlineModificar.add(rowInlineModificar1);
@@ -415,6 +463,12 @@ public class UsuarioBl {
                                 .setChatId(lastMessage.getChatId())
                                 .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
                                 .setText(conversacion[2]+"-Ingrese nuevo numero: ");
+                        break;
+                    case "modificarFoto":
+                        chatResponse = new EditMessageText()
+                                .setChatId(lastMessage.getChatId())
+                                .setMessageId(update.getCallbackQuery().getMessage().getMessageId())
+                                .setText(conversacion[2]+"-Ingrese nueva foto: -");
                         break;
 
                 }

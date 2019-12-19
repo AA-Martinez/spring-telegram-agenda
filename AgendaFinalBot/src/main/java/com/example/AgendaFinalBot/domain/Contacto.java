@@ -22,6 +22,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -40,6 +42,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Contacto.findByApellidos", query = "SELECT c FROM Contacto c WHERE c.apellidos = :apellidos"),
     @NamedQuery(name = "Contacto.findByCorreo", query = "SELECT c FROM Contacto c WHERE c.correo = :correo"),
     @NamedQuery(name = "Contacto.findByFechaNacimiento", query = "SELECT c FROM Contacto c WHERE c.fechaNacimiento = :fechaNacimiento"),
+    @NamedQuery(name = "Contacto.findByImagen", query = "SELECT c FROM Contacto c WHERE c.imagen = :imagen"),
     @NamedQuery(name = "Contacto.findByTxuser", query = "SELECT c FROM Contacto c WHERE c.txuser = :txuser"),
     @NamedQuery(name = "Contacto.findByTxhost", query = "SELECT c FROM Contacto c WHERE c.txhost = :txhost"),
     @NamedQuery(name = "Contacto.findByTxdate", query = "SELECT c FROM Contacto c WHERE c.txdate = :txdate"),
@@ -53,31 +56,52 @@ public class Contacto implements Serializable {
     @Column(name = "id_contacto")
     private Integer idContacto;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "chat_id")
     private String chatId;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 40)
     @Column(name = "nombres")
     private String nombres;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 40)
     @Column(name = "apellidos")
     private String apellidos;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 40)
     @Column(name = "correo")
     private String correo;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 40)
     @Column(name = "fecha_nacimiento")
     private String fechaNacimiento;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 255)
+    @Column(name = "imagen")
+    private String imagen;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "txuser")
     private String txuser;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "txhost")
     private String txhost;
     @Basic(optional = false)
+    @NotNull
     @Column(name = "txdate")
     @Temporal(TemporalType.DATE)
     private Date txdate;
     @Basic(optional = false)
+    @NotNull
     @Column(name = "status")
     private int status;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idContacto", fetch = FetchType.LAZY)
@@ -90,13 +114,14 @@ public class Contacto implements Serializable {
         this.idContacto = idContacto;
     }
 
-    public Contacto(Integer idContacto, String chatId, String nombres, String apellidos, String correo, String fechaNacimiento, String txuser, String txhost, Date txdate, int status) {
+    public Contacto(Integer idContacto, String chatId, String nombres, String apellidos, String correo, String fechaNacimiento, String imagen, String txuser, String txhost, Date txdate, int status) {
         this.idContacto = idContacto;
         this.chatId = chatId;
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.correo = correo;
         this.fechaNacimiento = fechaNacimiento;
+        this.imagen = imagen;
         this.txuser = txuser;
         this.txhost = txhost;
         this.txdate = txdate;
@@ -149,6 +174,14 @@ public class Contacto implements Serializable {
 
     public void setFechaNacimiento(String fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     public String getTxuser() {

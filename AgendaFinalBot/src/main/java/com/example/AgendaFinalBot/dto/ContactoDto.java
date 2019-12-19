@@ -9,6 +9,7 @@ public class ContactoDto {
     String nombres;
     String apellidos;
     String correo;
+    String imagen;
     String fecha_nacimiento;
     int status;
 
@@ -20,8 +21,17 @@ public class ContactoDto {
         this.nombres = contacto.getNombres();
         this.apellidos = contacto.getApellidos();
         this.correo = contacto.getCorreo();
+        this.imagen = contacto.getImagen();
         this.fecha_nacimiento = contacto.getFechaNacimiento();
         this.status = contacto.getStatus();
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     public int getIdContacto() {

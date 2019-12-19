@@ -21,6 +21,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -47,19 +49,27 @@ public class Numero implements Serializable {
     @Column(name = "id_numero")
     private Integer idNumero;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 40)
     @Column(name = "telefono")
     private String telefono;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "txuser")
     private String txuser;
     @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 50)
     @Column(name = "txhost")
     private String txhost;
     @Basic(optional = false)
+    @NotNull
     @Column(name = "txdate")
     @Temporal(TemporalType.DATE)
     private Date txdate;
     @Basic(optional = false)
+    @NotNull
     @Column(name = "status")
     private int status;
     @JoinColumn(name = "id_contacto", referencedColumnName = "id_contacto")

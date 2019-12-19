@@ -7,6 +7,7 @@ import com.example.AgendaFinalBot.domain.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -37,13 +38,20 @@ public class AgendaFinalBot extends TelegramLongPollingBot{
                 e.printStackTrace();
             }
         } else if(update.hasCallbackQuery()) {
-            System.out.println(update.getCallbackQuery().getMessage().getText());
             EditMessageText messageText = usuarioBl.processCallback(update);
             try {
                 execute(messageText);
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
+        } else if (update.getMessage().hasPhoto()){
+            SendMessage sendPhoto = usuarioBl.processImage(update);
+            try {
+                execute(sendPhoto);
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -55,5 +63,17 @@ public class AgendaFinalBot extends TelegramLongPollingBot{
     @Override
     public String getBotToken() {
         return "907718123:AAFcuvsA5F1d_WrLNtWCo18yk-enTFX1a3E";
+    }
+
+    public void mandarfoto(String chatid, String imagenid){
+        SendPhoto sendPhoto = new SendPhoto()
+                .setChatId(chatid)
+                .setPhoto(imagenid);
+        try {
+            execute(sendPhoto);
+        }catch (TelegramApiException e){
+            e.printStackTrace();
+        }
+
     }
 }
